@@ -6,7 +6,7 @@ Simple REST API built with the Gin framework.
 
 - `GET /ping` – health check
 - `GET /users` – returns mock users
-- `POST /users` – creates a new user (mock)
+- `POST /users` – creates a new user
 
 ## 🛠️ Run Locally
 
