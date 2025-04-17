@@ -1,14 +1,17 @@
 package main
 
 import (
-    "github.com/gin-gonic/gin"
+	"devops/config"
 	"devops/routes"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
-    r := gin.Default()
+	config.ConnectDatabase()
+	r := gin.Default()
 
-    routes.SetupRoutes(r)
+	routes.SetupRoutes(r)
 
-    r.Run(":8080")
+	r.Run(":8080")
 }
