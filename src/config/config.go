@@ -29,7 +29,7 @@ func ConnectDatabase() {
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
 		host, user, password, dbname, port, sslmode,
 	)
-
+	fmt.Println("Server is running on port 8080")
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal("❌ Failed to connect to database:", err)
