@@ -3,19 +3,24 @@ version: "3"
 services:
   go-gin-api:
     build: src/
-    ports:
-      - "8080:8080"
     environment:
       - DB_HOST=db
       - DB_PORT=5432
       - DB_USER=postgres
       - DB_PASSWORD=pass
       - DB_NAME=mydb
+      - SERVICE_HOST=service-discovery
     depends_on:
       - db
+      - service-discovery
     networks:
       - api
-
+  service-discovery:
+    build: serviceDiscovery/
+    ports:
+      - "3000:3000"
+    networks:
+      - api
   db:
     image: postgres:13-alpine
     environment:
