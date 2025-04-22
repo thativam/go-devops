@@ -34,12 +34,20 @@ func main() {
 	}
 	// Extract actual host:port info
 	port := ln.Addr().(*net.TCPAddr).Port
-	addr := ln.Addr().(*net.TCPAddr).IP.String()
+	addr, err := os.Hostname()
+	if err != nil {
+		log.Println(err)
+		addr = "localhost" // Fallback to localhost if hostname retrieval fails
+	}
 
 	// If the address is empty (could be 0.0.0.0), default to localhost for registration
-	if addr == "" || addr == "0.0.0.0" || addr == "::" {
-		addr = "localhost"
-	}
+	// if addr == "" || addr == "0.0.0.0" || addr == "::" {
+	// 	addr, err := os.Hostname()
+	// 	if err != nil {
+	// 		log.Fatalf("Failed to get hostname: %v", err)
+	// 	}
+
+	// }
 
 	log.Printf("Service started on port %d", port)
 
@@ -74,6 +82,7 @@ func registerService(name, address string, port int) {
 	}
 	// Send the registration request to the service registry
 	registrationURL := "http://" + serviceHost + ":3000/register"
+	fmt.Println("Service registration URL: " + registrationURL)
 	req, err := http.NewRequest("POST", registrationURL, bytes.NewBuffer(serviceData))
 	if err != nil {
 		log.Fatalf("Failed to create registration request: %v", err)
