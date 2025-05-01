@@ -10,14 +10,18 @@ services:
       - DB_SSLMODE=disable
       - SERVICE_HOST=service-discovery
     depends_on:
-      - service-discovery
-      - db
+      service-discovery:
+        condition: service_started 
+      db:
+        condition: service_healthy 
     networks:
       - api
+
   service-discovery: 
     build: serviceDiscovery/
     networks:
       - api
+
   load-balancer:
     build: loadBalancer/
     ports:
@@ -25,9 +29,11 @@ services:
     environment:
       - SERVICE_REGISTRY_URL=http://service-discovery:3000/services
     depends_on:
-      - service-discovery
+      service-discovery:
+        condition: service_started
     networks:
       - api
+
   db:
     image: postgres:13-alpine
     environment:
@@ -37,12 +43,12 @@ services:
     networks:
       - api
     volumes:
-      - ./initdb.sql:/docker-entrypoint-initdb.d/init-db.sql
+      - ./initdb.sql:/docker-entrypoint-initdb.d/init-db.sql 
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 2s
-      timeout: 5s
-      retries: 10
+      test: ["CMD-SHELL", "pg_isready -U postgres -d mydb"] 
+      interval: 2s 
+      timeout: 5s  
+      retries: 10   
 
 networks:
   api:
