@@ -19,7 +19,7 @@ body {
 }
 
 .container {
-    max-width: 640px;
+    max-width: 800px;  /* Aumentei a largura máxima */
     width: 90%;
     margin: auto;
     padding: 2.5rem;
@@ -56,11 +56,13 @@ body {
     border-radius: 3px;
 }
 
-.input-container {
+.input-row {
     display: flex;
+    justify-content: space-between;
     align-items: center;
     gap: 1rem;
     margin-bottom: 1.5rem;
+    width: 100%;
 }
 
 .input-field {
@@ -91,6 +93,7 @@ body {
     transition: all 0.2s ease;
     white-space: nowrap;
     box-shadow: 0 4px 6px rgba(59, 130, 246, 0.15);
+    margin-left: auto;
 }
 
 .btn:hover {
@@ -109,6 +112,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+    width: 100%;  /* Adicionei para ocupar toda a largura */
 }
 
 .empty-state {
@@ -116,6 +120,7 @@ body {
     text-align: center;
     padding: 2rem 0;
     font-size: 0.95rem;
+    width: 100%;  /* Adicionei para ocupar toda a largura */
 }
 
 .user-entry {
@@ -127,6 +132,7 @@ body {
     justify-content: space-between;
     align-items: center;
     transition: all 0.2s ease;
+    width: 100%;  /* Adicionei para ocupar toda a largura */
 }
 
 .user-entry:hover {
@@ -155,6 +161,8 @@ body {
     text-align: center;
     font-weight: 500;
     margin: 1rem 0;
+    width: 100%;  /* Ocupa toda a largura disponível */
+    box-sizing: border-box;  /* Garante que padding não aumente a largura */
 }
 """
 
@@ -177,10 +185,10 @@ def load_users():
                             ui.label(f"ID: {user['id']}").classes('user-id')
         else:
             with user_list_container:
-                ui.label('Failed to load users').classes('error-message')
+                ui.label('Failed to load users').classes('error-message').style('width: 100%')  # Garante 100% de largura
     except Exception as e:
         with user_list_container:
-            ui.label(f'Connection error: {str(e)}').classes('error-message')
+            ui.label(f'Connection error: {str(e)}').classes('error-message').style('width: 100%')  # Garante 100% de largura
 
 def create_user(name_input):
     name = name_input.value.strip()
@@ -212,7 +220,7 @@ with ui.column().classes('container'):
 
     with ui.column().classes('w-full'):
         ui.label('Create New User').classes('section-title')
-        with ui.row().classes('input-container'):
+        with ui.row().classes('input-row'):
             name_input = ui.input(placeholder='Enter user name').classes('input-field')
             ui.button('CREATE USER', on_click=lambda: create_user(name_input)).classes('btn')
 
