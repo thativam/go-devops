@@ -58,6 +58,7 @@ body {
 
 .input-container {
     display: flex;
+    align-items: center;
     gap: 1rem;
     margin-bottom: 1.5rem;
 }
