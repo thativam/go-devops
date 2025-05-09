@@ -1,7 +1,7 @@
 from nicegui import ui  # type: ignore
 import requests
+import os as OS
 
-API_BASE_URL = 'http://your-api.com/users'  # Replace with your real endpoint
 
 css = """
 main {
@@ -166,62 +166,103 @@ body {
 }
 """
 
-user_list_container = None
 
-def load_users():
-    user_list_container.clear()
-    try:
-        response = requests.get(API_BASE_URL)
-        if response.ok:
-            users = response.json()
+class api():
+
+    def __init__(self):
+        api_host = OS.getenv('API_HOST', 'localhost')
+        api_port = OS.getenv('API_PORT', '8000')
+        self.api_base_url = f'http://{api_host}:{api_port}/'
+    def get_api_base_url(self):
+        return self.api_base_url
+    def get_users(self):
+        response = requests.get(self.api_base_url)
+        if(not response.ok):
+            raise Exception(f"Failed to fetch users: {response.status_code}")
+        users = response.json()
+        return users
+    def create_user(self, json_name):
+        response = requests.post(self.api_base_url, json=json_name)
+        if(not response.ok):
+            raise Exception(f"Failed to create user: {response.status_code}")
+        user = response.json()
+        return user
+
+class apiMock():
+    users = [
+            {'id': 1, 'name': 'John Doe'},
+            {'id': 2, 'name': 'Jane Smith'},
+            {'id': 3, 'name': 'Alice Johnson'},
+        ]
+    def __init__(self):
+        self.api_base_url = ''
+    def get_users(self):
+        return self.users
+    def create_user(self, json_name):
+        name = json_name['name']
+        if not name:
+            raise ValueError("Name cannot be empty")
+        new_user = {'id': len(self.users) + 1, 'name': name}
+        self.users.append(new_user)
+        return new_user
+
+
+
+
+class Frontend():
+    def __init__(self, api, port):
+        self.api = api
+        self.user_list_container = None
+        self.port = port
+    def load_users(self):
+        self.user_list_container.clear()
+        try:
+            users = api.get_users()
             if not users:
-                with user_list_container:
+                with self.user_list_container:
                     ui.label('No users found').classes('empty-state')
             else:
                 for user in users:
-                    with user_list_container:
+                    with self.user_list_container:
                         with ui.row().classes('user-entry'):
                             ui.label(user['name']).classes('user-name')
                             ui.label(f"ID: {user['id']}").classes('user-id')
-        else:
-            with user_list_container:
-                ui.label('Failed to load users').classes('error-message').style('width: 100%')  # Garante 100% de largura
-    except Exception as e:
-        with user_list_container:
-            ui.label(f'Connection error: {str(e)}').classes('error-message').style('width: 100%')  # Garante 100% de largura
+        except Exception as e:
+            with self.user_list_container:
+                ui.label(f'Connection error: {str(e)}').classes('error-message').style('width: 100%')  # Garante 100% de largura
 
-def create_user(name_input):
-    name = name_input.value.strip()
-    if not name:
-        ui.notify('Please enter a name', type='negative', position='top')
-        return
-    
-    try:
-        response = requests.post(API_BASE_URL, json={'name': name})
-        if response.ok:
+    def create_user(self,name_input):
+        name = name_input.value.strip()
+        if not name:
+            ui.notify('Please enter a name', type='negative', position='top')
+            return
+        try:
+            api.create_user({'name': name})
             ui.notify('User created successfully', type='positive', position='top')
             name_input.value = ''
-            load_users()
-        else:
-            ui.notify('Failed to create user', type='negative', position='top')
-    except Exception as e:
-        ui.notify(f'Connection error: {str(e)}', type='negative', position='top')
+            self.load_users()
+        except Exception as e:
+            ui.notify(f'Failed to create user {str(e)}', type='negative', position='top')
 
-# UI Layout
-ui.add_head_html(f'<style>{css}</style>')
+    def startUI(self):
+    # UI Layout
+        ui.add_head_html(f'<style>{css}</style>')
 
-with ui.column().classes('container'):
-    ui.label('User Management').classes('header')
-    
-    with ui.column().classes('w-full'):
-        ui.label('User List').classes('section-title')
-        user_list_container = ui.column().classes('user-list')
-        load_users()
+        with ui.column().classes('container'):
+            ui.label('User Management').classes('header')
+            
+            with ui.column().classes('w-full'):
+                ui.label('User List').classes('section-title')
+                self.user_list_container = ui.column().classes('user-list')
+                self.load_users()
 
-    with ui.column().classes('w-full'):
-        ui.label('Create New User').classes('section-title')
-        with ui.row().classes('input-row'):
-            name_input = ui.input(placeholder='Enter user name').classes('input-field')
-            ui.button('CREATE USER', on_click=lambda: create_user(name_input)).classes('btn')
+            with ui.column().classes('w-full'):
+                ui.label('Create New User').classes('section-title')
+                with ui.row().classes('input-row'):
+                    name_input = ui.input(placeholder='Enter user name').classes('input-field')
+                    ui.button('CREATE USER', on_click=lambda: self.create_user(name_input)).classes('btn')
 
-ui.run(port=5000)
+        ui.run(port=self.port)
+api = apiMock()
+client = Frontend(api, 5000)
+client.startUI()
