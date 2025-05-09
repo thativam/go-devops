@@ -167,22 +167,27 @@ body {
 """
 
 
-class api():
+class rest_api():
 
     def __init__(self):
         api_host = OS.getenv('API_HOST', 'localhost')
-        api_port = OS.getenv('API_PORT', '8000')
-        self.api_base_url = f'http://{api_host}:{api_port}/'
+        api_port = OS.getenv('API_PORT', '8080')
+        self.api_base_url = f'http://{api_host}:{api_port}'
+        self.users_base_api = f'{self.api_base_url}/users'
+
     def get_api_base_url(self):
         return self.api_base_url
+    
     def get_users(self):
-        response = requests.get(self.api_base_url)
+        response = requests.get(self.users_base_api)
         if(not response.ok):
             raise Exception(f"Failed to fetch users: {response.status_code}")
         users = response.json()
+        print(users)
         return users
+    
     def create_user(self, json_name):
-        response = requests.post(self.api_base_url, json=json_name)
+        response = requests.post(self.users_base_api, json=json_name)
         if(not response.ok):
             raise Exception(f"Failed to create user: {response.status_code}")
         user = response.json()
@@ -197,6 +202,8 @@ class apiMock():
     def __init__(self):
         self.api_base_url = ''
     def get_users(self):
+        print(self.users)
+
         return self.users
     def create_user(self, json_name):
         name = json_name['name']
@@ -206,9 +213,6 @@ class apiMock():
         self.users.append(new_user)
         return new_user
 
-
-
-
 class Frontend():
     def __init__(self, api, port):
         self.api = api
@@ -217,7 +221,7 @@ class Frontend():
     def load_users(self):
         self.user_list_container.clear()
         try:
-            users = api.get_users()
+            users = self.api.get_users()
             if not users:
                 with self.user_list_container:
                     ui.label('No users found').classes('empty-state')
@@ -237,7 +241,7 @@ class Frontend():
             ui.notify('Please enter a name', type='negative', position='top')
             return
         try:
-            api.create_user({'name': name})
+            self.api.create_user({'name': name})
             ui.notify('User created successfully', type='positive', position='top')
             name_input.value = ''
             self.load_users()
@@ -263,6 +267,8 @@ class Frontend():
                     ui.button('CREATE USER', on_click=lambda: self.create_user(name_input)).classes('btn')
 
         ui.run(port=self.port)
-api = apiMock()
-client = Frontend(api, 5000)
+
+MOCK_API = apiMock()
+realApi = rest_api()
+client = Frontend(realApi, 5000)
 client.startUI()
