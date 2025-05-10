@@ -112,7 +112,9 @@ body {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    width: 100%;  /* Adicionei para ocupar toda a largura */
+    width: 100%;  
+    max-height: 200px; 
+    overflow-y: auto; 
 }
 
 .empty-state {
