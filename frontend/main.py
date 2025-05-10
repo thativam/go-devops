@@ -170,11 +170,11 @@ body {
 
 class rest_api():
     def __init__(self):
-        api_host = OS.getenv('API_HOST', 'load-balancer')
+        api_host = OS.getenv('API_HOST', 'localhost')
         api_port = OS.getenv('API_PORT', '8080')
         self.api_base_url = f'http://{api_host}:{api_port}'
         self.users_base_api = f'{self.api_base_url}/users'
-       
+        print(f'API Hosted: {self.api_base_url}')
 
     def get_api_base_url(self):
         return self.api_base_url
