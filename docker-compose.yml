@@ -50,6 +50,20 @@ services:
       timeout: 5s  
       retries: 10   
 
+  frontend: 
+      build: frontend/ 
+      ports:
+        - "5000:5000" 
+      depends_on:
+        - go-gin-api
+        - load-balancer
+      environment:
+      - API_HOST=load-balancer
+      - API_PORT=8080
+      - API_URL=http://load-balancer:8080
+      networks:
+        - api
+
 networks:
   api:
     driver: bridge

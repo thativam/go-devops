@@ -2,7 +2,6 @@ from nicegui import ui  # type: ignore
 import requests
 import os as OS
 
-
 css = """
 main {
     align-content: center;
@@ -108,13 +107,13 @@ body {
     padding: 1.5rem;
     margin-bottom: 2rem;
     min-height: 120px;
+    max-height: 300px;
+    overflow-y: auto;
     border: 1px dashed #e2e8f0;
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    width: 100%;  
-    max-height: 200px; 
-    overflow-y: auto; 
+    width: 100%;
 }
 
 .empty-state {
@@ -122,7 +121,7 @@ body {
     text-align: center;
     padding: 2rem 0;
     font-size: 0.95rem;
-    width: 100%;  /* Adicionei para ocupar toda a largura */
+    width: 100%;
 }
 
 .user-entry {
@@ -134,7 +133,7 @@ body {
     justify-content: space-between;
     align-items: center;
     transition: all 0.2s ease;
-    width: 100%;  /* Adicionei para ocupar toda a largura */
+    width: 100%;
 }
 
 .user-entry:hover {
@@ -163,50 +162,53 @@ body {
     text-align: center;
     font-weight: 500;
     margin: 1rem 0;
-    width: 100%;  /* Ocupa toda a largura disponível */
-    box-sizing: border-box;  /* Garante que padding não aumente a largura */
+    width: 100%;
+    box-sizing: border-box;
 }
 """
 
 
 class rest_api():
-
     def __init__(self):
-        api_host = OS.getenv('API_HOST', 'localhost')
+        api_host = OS.getenv('API_HOST', 'load-balancer')
         api_port = OS.getenv('API_PORT', '8080')
         self.api_base_url = f'http://{api_host}:{api_port}'
         self.users_base_api = f'{self.api_base_url}/users'
+       
 
     def get_api_base_url(self):
         return self.api_base_url
-    
+
     def get_users(self):
         response = requests.get(self.users_base_api)
-        if(not response.ok):
+        if not response.ok:
             raise Exception(f"Failed to fetch users: {response.status_code}")
         users = response.json()
         print(users)
         return users
-    
+
     def create_user(self, json_name):
         response = requests.post(self.users_base_api, json=json_name)
-        if(not response.ok):
+        if not response.ok:
             raise Exception(f"Failed to create user: {response.status_code}")
         user = response.json()
         return user
 
+
 class apiMock():
     users = [
-            {'id': 1, 'name': 'John Doe'},
-            {'id': 2, 'name': 'Jane Smith'},
-            {'id': 3, 'name': 'Alice Johnson'},
-        ]
+        {'id': 1, 'name': 'John Doe'},
+        {'id': 2, 'name': 'Jane Smith'},
+        {'id': 3, 'name': 'Alice Johnson'},
+    ]
+
     def __init__(self):
         self.api_base_url = ''
+
     def get_users(self):
         print(self.users)
-
         return self.users
+
     def create_user(self, json_name):
         name = json_name['name']
         if not name:
@@ -215,11 +217,13 @@ class apiMock():
         self.users.append(new_user)
         return new_user
 
+
 class Frontend():
     def __init__(self, api, port):
         self.api = api
         self.user_list_container = None
         self.port = port
+
     def load_users(self):
         self.user_list_container.clear()
         try:
@@ -235,9 +239,9 @@ class Frontend():
                             ui.label(f"ID: {user['id']}").classes('user-id')
         except Exception as e:
             with self.user_list_container:
-                ui.label(f'Connection error: {str(e)}').classes('error-message').style('width: 100%')  # Garante 100% de largura
+                ui.label(f'Connection error: {str(e)}').classes('error-message').style('width: 100%')
 
-    def create_user(self,name_input):
+    def create_user(self, name_input):
         name = name_input.value.strip()
         if not name:
             ui.notify('Please enter a name', type='negative', position='top')
@@ -251,12 +255,11 @@ class Frontend():
             ui.notify(f'Failed to create user {str(e)}', type='negative', position='top')
 
     def startUI(self):
-    # UI Layout
         ui.add_head_html(f'<style>{css}</style>')
 
         with ui.column().classes('container'):
             ui.label('User Management').classes('header')
-            
+
             with ui.column().classes('w-full'):
                 ui.label('User List').classes('section-title')
                 self.user_list_container = ui.column().classes('user-list')
@@ -269,6 +272,7 @@ class Frontend():
                     ui.button('CREATE USER', on_click=lambda: self.create_user(name_input)).classes('btn')
 
         ui.run(port=self.port)
+
 
 MOCK_API = apiMock()
 realApi = rest_api()
