@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"math/rand"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -29,6 +28,10 @@ var (
 	mu                 sync.RWMutex
 )
 
+var (
+	lb *LoadBalancer
+)
+
 func getEnv(key, fallback string) string {
 	if value, exists := os.LookupEnv(key); exists {
 		return value
@@ -38,7 +41,7 @@ func getEnv(key, fallback string) string {
 
 // Fetch services every 10 seconds
 func startServicePolling() {
-	ticker := time.NewTicker(10 * time.Second)
+	ticker := time.NewTicker(20 * time.Second)
 	go func() {
 		for range ticker.C {
 			updateServiceList()
@@ -69,18 +72,8 @@ func updateServiceList() {
 	log.Printf("Updated service list: %d services available", len(services))
 }
 
-func getRandomService() *Service {
-	mu.RLock()
-	defer mu.RUnlock()
-
-	if len(services) == 0 {
-		return nil
-	}
-	return &services[rand.Intn(len(services))]
-}
-
 func proxyHandler(c *gin.Context) {
-	target := getRandomService()
+	target := lb.strategy.getNextService(&services)
 	if target == nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "No services available"})
 		return
@@ -105,12 +98,27 @@ func itoa(n int) string {
 }
 
 func main() {
-	rand.Seed(time.Now().UnixNano())
 	startServicePolling()
-
+	lb = initLb(&RoundRobin{})
 	router := gin.Default()
-	router.Any("/*proxyPath", proxyHandler)
+	log.Println("Default Lb strategy to: RR")
+	router.OPTIONS("/lb/strategy/:strategy", func(c *gin.Context) {
+		strategy := c.Param("strategy")
+		log.Println("Setting strategy to:", strategy)
 
+		switch strategy {
+		case "roundrobin":
+			lb.setStrategyAlgo(&RoundRobin{})
+		case "random":
+			lb.setStrategyAlgo(&Rmd{})
+		default:
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid strategy"})
+		}
+	})
+	router.GET("/*proxyPath", proxyHandler)
+	router.POST("/*proxyPath", proxyHandler)
+	router.PUT("/*proxyPath", proxyHandler)
+	router.DELETE("/*proxyPath", proxyHandler)
 	log.Println("Load balancer running on :8080")
 	router.Run(":8080")
 }
