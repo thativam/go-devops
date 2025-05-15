@@ -2,6 +2,10 @@
 
 API Simples em Go com o intuito de demonstrar o uso com containers
 
+## Autores
+- Carolina Martins Emilio - 811508  
+- Ivan Capeli Navas - 802286
+
 ## Ideia
 - Aplicação tem o intuito de ser bem simples
 - A ideia é que um usuario teria um nome e um id

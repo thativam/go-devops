@@ -13,18 +13,28 @@ body {
     padding: 0;
     min-height: 100vh;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
+    overflow: hidden;  /* Adicione esta linha */
 }
 
 .container {
-    max-width: 800px;  /* Aumentei a largura máxima */
+    max-width: 900px; 
+    min-width: 400px;
+    min-height: 500px;  
+    max-height: 90vh;
     width: 90%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     margin: auto;
     padding: 2.5rem;
     background-color: #ffffff;
     border-radius: 16px;
     box-shadow: 0 10px 40px rgba(0,0,0,0.07);
+    overflow: hidden;
 }
 
 .header {
@@ -107,13 +117,16 @@ body {
     padding: 1.5rem;
     margin-bottom: 2rem;
     min-height: 120px;
-    max-height: 300px;
+    max-height: 250px;
     overflow-y: auto;
     border: 1px dashed #e2e8f0;
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
     width: 100%;
+    box-sizing: border-box;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
 }
 
 .empty-state {
@@ -254,6 +267,7 @@ class Frontend():
         except Exception as e:
             ui.notify(f'Failed to create user {str(e)}', type='negative', position='top')
 
+
     def startUI(self):
         ui.add_head_html(f'<style>{css}</style>')
 
@@ -268,7 +282,14 @@ class Frontend():
             with ui.column().classes('w-full'):
                 ui.label('Create New User').classes('section-title')
                 with ui.row().classes('input-row'):
-                    name_input = ui.input(placeholder='Enter user name').classes('input-field')
+                    name_input = ui.input(placeholder='Enter user name').classes('input-field').props('autofocus')
+                    
+                    def handle_key(e):
+                        if e.args['key'] == 'Enter':
+                            self.create_user(name_input)
+                    name_input.on('keydown.enter', handle_key)
+                    
+                    
                     ui.button('CREATE USER', on_click=lambda: self.create_user(name_input)).classes('btn')
 
         ui.run(port=self.port)
@@ -276,5 +297,6 @@ class Frontend():
 
 MOCK_API = apiMock()
 realApi = rest_api()
-client = Frontend(realApi, 5000)
+#client = Frontend(realApi, 5000)
+client = Frontend(MOCK_API, 5000)
 client.startUI()
