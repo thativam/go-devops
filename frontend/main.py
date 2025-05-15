@@ -7,7 +7,7 @@ main {
     align-content: center;
 }
 body {
-    background-image: url('https://img.freepik.com/foto-gratis/paisagem-aves_1232-1000.jpg');
+    background-image: url('https://img.freepik.com/fotos-gratis/ceu-rosa-por-do-sol-e-passaros-voando_395237-171.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
