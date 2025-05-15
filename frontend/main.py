@@ -297,6 +297,6 @@ class Frontend():
 
 MOCK_API = apiMock()
 realApi = rest_api()
-#client = Frontend(realApi, 5000)
-client = Frontend(MOCK_API, 5000)
+client = Frontend(realApi, 5000)
+#client = Frontend(MOCK_API, 5000)
 client.startUI()
