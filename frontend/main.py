@@ -7,6 +7,11 @@ main {
     align-content: center;
 }
 body {
+    background-image: url('https://img.freepik.com/foto-gratis/paisagem-aves_1232-1000.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
     background-color: #f8fafc;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     margin: 0;
