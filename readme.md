@@ -33,11 +33,36 @@ Para aproveitar o LoadBalancer o interessante seria rodar com mais de uma instan
 - `POST /users -d {"name": "nomeUsuario"}` – cria um novo usuario
 - `OPTIONS /lb/strategy/:strategy` - strategy pode ser *random* ou *roundrobin*
 
+## 🫙 Containers
+
+- **frontend:**  
+  Container responsável pela interface gráfica da aplicação.  
+  Comunica-se com o *load balancer* para acessar os serviços do backend.  
+  Expõe a porta `5000`, permitindo que os usuários acessem o sistema via navegador.
+
+- **go-gin-api:**  
+  Backend da aplicação desenvolvido com o framework Go Gin.  
+  Processa as requisições enviadas pelo frontend, acessa o banco de dados e interage com outros serviços.  
+  Depende do banco de dados estar saudável e do serviço de descoberta estar disponível.
+
+- **db:**  
+  Banco de dados PostgreSQL que armazena as informações persistentes da aplicação.  
+  Inicializa com um script SQL (`initdb.sql`) e é monitorado com um *healthcheck* para garantir que está pronto antes de os outros serviços dependerem dele.
+
+- **service-discovery:**  
+  API de descoberta de serviços.  
+  Sua função é registrar os serviços disponíveis e fornecer uma lista atualizada ao *load balancer*, permitindo que ele saiba quais instâncias estão ativas e onde enviar as requisições.
+
+- **load-balancer:**  
+  Funciona como um proxy reverso e balanceador de carga.  
+  Recebe as requisições do frontend e, com base nas informações do *service discovery*, as distribui entre as instâncias do backend disponíveis, garantindo escalabilidade e alta disponibilidade.
+ 
+
 ## 🔄 Ordem de Inicialização
 
 ```mermaid
 graph TD
-    A[🛢️ db: PostgreSQL] -->|healthcheck<br>pg_isready| B[🛠️ go-gin-api]
+    A[🛢️ db: PostgreSQL] --> B[🛠️ go-gin-api]
     A -->|healthy| C[🔍 service-discovery]
     C -->|started| B
     C -->|started| D[⚖️ load-balancer]
