@@ -1,0 +1,63 @@
+name: Build and Push Docker Images
+
+on:
+  push:
+    branches:
+      - master # Or 'master', or any branch you want to trigger this
+    # Optionally, trigger on pushes to specific paths if you only want to rebuild
+    # when Dockerfiles or related code changes.
+    paths:
+      - 'src/**'
+      - 'frontend/**'
+      - 'loadBalancer/**'
+      - 'serviceDiscovery/**'
+      - '.github/workflows/docker-publish.yml' # To rebuild if workflow changes
+  workflow_dispatch: # Allows manual triggering from the Actions tab
+
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service:
+          - { folder: "src", image_name_suffix: "goApi" } # Example: youruser/my-app-src
+          - { folder: "frontend", image_name_suffix: "pyFrontend" }
+          - { folder: "loadBalancer", image_name_suffix: "goLb" }
+          - { folder: "serviceDiscovery", image_name_suffix: "goServiceDiscovery" }
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.service.image_name_suffix }}
+          tags: |
+            type=sha,prefix=,suffix=,format=short
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push ${{ matrix.service.folder }}
+        uses: docker/build-push-action@v5
+        with:
+          context: ./${{ matrix.service.folder }}
+          file: ./${{ matrix.service.folder }}/Dockerfile
+          push: ${{ github.event_name != 'pull_request' }} # Only push if not a PR (or always if you want)
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha 
+          cache-to: type=gha,mode=max
