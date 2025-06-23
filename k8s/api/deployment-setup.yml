@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-gin-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: go-gin-api
+  template:
+    metadata:
+      labels:
+        app: go-gin-api
+    spec:
+      containers:
+      - name: go-gin-api
+        image: go-gin-api:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DB_HOST
+          value: postgres
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_USER
+          value: postgres
+        - name: DB_PASSWORD
+          value: pass
+        - name: DB_NAME
+          value: mydb
+        - name: DB_SSLMODE
+          value: disable
+        - name: SERVICE_HOST
+          value: service-discovery
