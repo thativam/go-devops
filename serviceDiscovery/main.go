@@ -40,6 +40,7 @@ func registerService(w http.ResponseWriter, r *http.Request) {
 	services[s.ID] = s
 
 	log.Printf("Service %s registered", s.Name)
+	log.Printf("Service details: ID=%s, Address=%s, Port=%d", s.ID, s.Address, s.Port)
 	w.WriteHeader(http.StatusOK)
 }
 

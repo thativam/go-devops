@@ -39,7 +39,7 @@ func main() {
 		log.Println(err)
 		addr, _ = os.Hostname() // Fallback to localhost if hostname retrieval fails
 	}
-
+	log.Println("Using address: ", addr)
 	// If the address is empty (could be 0.0.0.0), default to localhost for registration
 	// if addr == "" || addr == "0.0.0.0" || addr == "::" {
 	// 	addr, err := os.Hostname()
