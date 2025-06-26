@@ -34,10 +34,10 @@ func main() {
 	}
 	// Extract actual host:port info
 	port := ln.Addr().(*net.TCPAddr).Port
-	addr, err := os.Hostname()
-	if err != nil {
+	addr := os.Getenv("HOST_NAME")
+	if addr == "" {
 		log.Println(err)
-		addr = "localhost" // Fallback to localhost if hostname retrieval fails
+		addr, _ = os.Hostname() // Fallback to localhost if hostname retrieval fails
 	}
 
 	// If the address is empty (could be 0.0.0.0), default to localhost for registration
