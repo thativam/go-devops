@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: go-gin-api
-        image: go-gin-api:latest
+        image: 1vancn/goapi:latest
         imagePullPolicy: Never
         ports:
         - containerPort: 8080
@@ -33,3 +33,5 @@ spec:
           value: disable
         - name: SERVICE_HOST
           value: service-discovery
+        - name: HOST_NAME
+          value: go-gin-api
