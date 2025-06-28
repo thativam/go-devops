@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: go-gin-api
+spec:
+  serviceName: go-gin-api-headless
+  replicas: 3
+  selector:
+    matchLabels:
+      app: go-gin-api
+  template:
+    metadata:
+      labels:
+        app: go-gin-api
+    spec:
+      containers:
+      - name: go-gin-api
+        image: 1vancn/goapi:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DB_HOST
+          value: postgres
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_USER
+          value: postgres
+        - name: DB_PASSWORD
+          value: pass
+        - name: DB_NAME
+          value: mydb
+        - name: DB_SSLMODE
+          value: disable
+        - name: SERVICE_HOST
+          value: service-discovery
+        - name: HOST_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: HOST_FULL_NAME
+          value: go-gin-api-headless.default.svc.cluster.local
+
