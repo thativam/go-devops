@@ -1,8 +1,9 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: go-gin-api
 spec:
+  serviceName: go-gin-api-headless
   replicas: 3
   selector:
     matchLabels:
@@ -12,8 +13,6 @@ spec:
       labels:
         app: go-gin-api
     spec:
-      hostname: go-gin-api
-      subdomain: go-gin-api-headless
       containers:
       - name: go-gin-api
         image: 1vancn/goapi:latest
@@ -39,4 +38,6 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.name
+        - name: HOST_FULL_NAME
+          value: go-gin-api-headless.default.svc.cluster.local
 
