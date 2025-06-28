@@ -12,10 +12,12 @@ spec:
       labels:
         app: go-gin-api
     spec:
+      hostname: go-gin-api
+      subdomain: go-gin-api-headless
       containers:
       - name: go-gin-api
         image: 1vancn/goapi:latest
-        imagePullPolicy: Never
+        imagePullPolicy: Always
         ports:
         - containerPort: 8080
         env:
@@ -34,4 +36,7 @@ spec:
         - name: SERVICE_HOST
           value: service-discovery
         - name: HOST_NAME
-          value: go-gin-api
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+
