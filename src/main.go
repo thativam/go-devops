@@ -54,7 +54,7 @@ func main() {
 }
 
 func registerService(name, address string, port int) {
-	serviceID := fmt.Sprintf("%s-%d", name, port) // Unique ID based on service name and port
+	serviceID := fmt.Sprintf("%s-%d", address, port) // Unique ID based on service name and port
 
 	service := Service{
 		ID:      serviceID,
