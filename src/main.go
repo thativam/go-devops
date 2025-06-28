@@ -34,7 +34,8 @@ func main() {
 	}
 	// Extract actual host:port info
 	// port := ln.Addr().(*net.TCPAddr).Port
-	addr := os.Getenv("HOST_NAME")
+
+	addr := fmt.Sprintf("%s.%s", os.Getenv("HOST_NAME"), os.Getenv("HOST_FULL_NAME"))
 	if addr == "" {
 		log.Println(err)
 		addr, _ = os.Hostname() // Fallback to localhost if hostname retrieval fails
