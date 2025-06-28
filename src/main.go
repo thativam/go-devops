@@ -28,31 +28,23 @@ func main() {
 	routes.SetupRoutes(r)
 
 	// Get a random available port by binding to ":0"
-	ln, err := net.Listen("tcp", ":0")
+	ln, err := net.Listen("tcp", ":8080")
 	if err != nil {
 		log.Fatalf("Failed to get a random available port: %v", err)
 	}
 	// Extract actual host:port info
-	port := ln.Addr().(*net.TCPAddr).Port
+	// port := ln.Addr().(*net.TCPAddr).Port
 	addr := os.Getenv("HOST_NAME")
 	if addr == "" {
 		log.Println(err)
 		addr, _ = os.Hostname() // Fallback to localhost if hostname retrieval fails
 	}
 	log.Println("Using address: ", addr)
-	// If the address is empty (could be 0.0.0.0), default to localhost for registration
-	// if addr == "" || addr == "0.0.0.0" || addr == "::" {
-	// 	addr, err := os.Hostname()
-	// 	if err != nil {
-	// 		log.Fatalf("Failed to get hostname: %v", err)
-	// 	}
 
-	// }
-
-	log.Printf("Service started on port %d", port)
+	log.Printf("Service started on port %d", 8080)
 
 	// Register service in a goroutine (non-blocking)
-	go registerService("go-api", addr, port)
+	go registerService("go-api", addr, 8080)
 
 	// Serve using the existing listener
 	if err := r.RunListener(ln); err != nil {
