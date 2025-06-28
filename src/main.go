@@ -28,31 +28,24 @@ func main() {
 	routes.SetupRoutes(r)
 
 	// Get a random available port by binding to ":0"
-	ln, err := net.Listen("tcp", ":0")
+	ln, err := net.Listen("tcp", ":8080")
 	if err != nil {
 		log.Fatalf("Failed to get a random available port: %v", err)
 	}
 	// Extract actual host:port info
-	port := ln.Addr().(*net.TCPAddr).Port
-	addr, err := os.Hostname()
-	if err != nil {
+	// port := ln.Addr().(*net.TCPAddr).Port
+
+	addr := fmt.Sprintf("%s.%s", os.Getenv("HOST_NAME"), os.Getenv("HOST_FULL_NAME"))
+	if addr == "" {
 		log.Println(err)
-		addr = "localhost" // Fallback to localhost if hostname retrieval fails
+		addr, _ = os.Hostname() // Fallback to localhost if hostname retrieval fails
 	}
+	log.Println("Using address: ", addr)
 
-	// If the address is empty (could be 0.0.0.0), default to localhost for registration
-	// if addr == "" || addr == "0.0.0.0" || addr == "::" {
-	// 	addr, err := os.Hostname()
-	// 	if err != nil {
-	// 		log.Fatalf("Failed to get hostname: %v", err)
-	// 	}
-
-	// }
-
-	log.Printf("Service started on port %d", port)
+	log.Printf("Service started on port %d", 8080)
 
 	// Register service in a goroutine (non-blocking)
-	go registerService("go-api", addr, port)
+	go registerService("go-api", addr, 8080)
 
 	// Serve using the existing listener
 	if err := r.RunListener(ln); err != nil {
@@ -62,7 +55,7 @@ func main() {
 }
 
 func registerService(name, address string, port int) {
-	serviceID := fmt.Sprintf("%s-%d", name, port) // Unique ID based on service name and port
+	serviceID := fmt.Sprintf("%s-%d", address, port) // Unique ID based on service name and port
 
 	service := Service{
 		ID:      serviceID,
