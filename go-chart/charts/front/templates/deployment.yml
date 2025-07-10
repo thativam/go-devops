@@ -20,7 +20,7 @@ spec:
         - containerPort: 5000
         env:
         - name: API_HOST
-          value: {{  .Values.global.load-balancer.name  }}
+          value: {{  .Values.global.loadbalancer.name  }}
         - name: API_PORT
           value: "8080"
         - name: API_URL

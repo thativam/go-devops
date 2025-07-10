@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{  .Values.global.go-gin-api.name  }}
+  name: {{  .Values.global.goginapi.name  }}
 spec:
-  serviceName: {{  .Values.global.go-gin-api-headless.name  }}
+  serviceName: {{  .Values.global.goginapiheadless.name  }}
   replicas: {{  .Values.replicaCount  }}
   selector:
     matchLabels:
-      app: {{  .Values.global.go-gin-api.name  }}
+      app: {{  .Values.global.goginapi.name  }}
   template:
     metadata:
       labels:
-        app: {{  .Values.global.go-gin-api.name  }}
+        app: {{  .Values.global.goginapi.name  }}
     spec:
       containers:
-      - name: {{  .Values.global.go-gin-api.name  }}
+      - name: {{  .Values.global.goginapi.name  }}
         image: {{  .Values.image.repository  }}:{{  .Values.image.tag  }}
         imagePullPolicy: {{  .Values.image.imagePullPolicy  }}
         ports:
@@ -33,11 +33,11 @@ spec:
         - name: DB_SSLMODE
           value: disable
         - name: SERVICE_HOST
-          value: {{  .Values.global.service-discovery.name  }}
+          value: {{  .Values.global.servicediscovery.name  }}
         - name: HOST_NAME
           valueFrom:
             fieldRef:
               fieldPath: metadata.name
         - name: HOST_FULL_NAME
-          value: {{  .Values.global.go-gin-api-headless.name  }}.default.svc.cluster.local
+          value: {{  .Values.global.goginapiheadless.name  }}.default.svc.cluster.local
 

@@ -5,14 +5,14 @@ version: 0.1.0
 appVersion: "1.0"
 type: application
 
-dependencies:
-  - name: go-gin-api
-    version: 0.1.0
-  - name: load-balancer
-    version: 0.1.0
-  - name: frontend
-    version: 0.1.0
-  - name: service-discovery
-    version: 0.1.0
-  - name: postgres
-    version: 0.1.0
+# dependencies:
+#   - name: go-gin-api
+#     version: 0.1.0
+#   - name: load-balancer
+#     version: 0.1.0
+#   - name: frontend
+#     version: 0.1.0
+#   - name: service-discovery
+#     version: 0.1.0
+#   - name: postgres
+#     version: 0.1.0

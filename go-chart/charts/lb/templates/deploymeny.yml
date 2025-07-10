@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{  .Values.global.load-balancer.name  }}
+  name: {{  .Values.global.loadbalancer.name  }}
 spec:
   replicas: {{  .Values.replicasCount  }}
   selector:
     matchLabels:
-      app: {{  .Values.global.load-balancer.name  }}
+      app: {{  .Values.global.loadbalancer.name  }}
   template:
     metadata:
       labels:
-        app: {{  .Values.global.load-balancer.name  }}
+        app: {{  .Values.global.loadbalancer.name  }}
     spec:
       containers:
-      - name: {{  .Values.global.load-balancer.name  }}
+      - name: {{  .Values.global.loadbalancer.name  }}
         image: {{  .Values.image.repository  }}:{{  .Values.image.tag  }}
         imagePullPolicy: {{  .Values.image.imagePullPolicy  }}
         ports:
