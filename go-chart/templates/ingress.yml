@@ -4,7 +4,7 @@ metadata:
   name: gateway-ingress
 spec:
   rules:
-  - host: nome.k8s.local
+  - host: k8s.local
     http:
       paths:
       - path: /
