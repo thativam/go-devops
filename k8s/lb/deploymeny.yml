@@ -15,7 +15,7 @@ spec:
       containers:
       - name: load-balancer
         image: 1vancn/golb:latest
-        imagePullPolicy: Never
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
         env:

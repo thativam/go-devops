@@ -15,6 +15,6 @@ spec:
       containers:
       - name: service-discovery
         image: 1vancn/goservicediscovery:latest
-        imagePullPolicy: Never
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3000
