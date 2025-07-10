@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{  .Values.global.load-balancer.name  }}
+spec:
+  replicas: {{  .Values.replicasCount  }}
+  selector:
+    matchLabels:
+      app: {{  .Values.global.load-balancer.name  }}
+  template:
+    metadata:
+      labels:
+        app: {{  .Values.global.load-balancer.name  }}
+    spec:
+      containers:
+      - name: {{  .Values.global.load-balancer.name  }}
+        image: {{  .Values.image.repository  }}:{{  .Values.image.tag  }}
+        imagePullPolicy: {{  .Values.image.imagePullPolicy  }}
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SERVICE_REGISTRY_URL
+          value: http://service-discovery:3000/services

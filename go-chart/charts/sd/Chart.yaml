@@ -1,0 +1,6 @@
+apiVersion: v2
+name: go-sd
+description: A Helm chart for deploying a Go-based API application to register and unicast GO APIS 
+version: 0.1.0
+appVersion: "1.0"
+type: application

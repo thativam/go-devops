@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{  .Values.global.service-discovery.name  }}
+spec:
+  replicas: {{  .Values.replicasCount  }}
+  selector:
+    matchLabels:
+      app: {{  .Values.global.service-discovery.name  }}
+  template:
+    metadata:
+      labels:
+        app: {{  .Values.global.service-discovery.name  }}
+    spec:
+      containers:
+      - name: {{  .Values.global.service-discovery.name  }}
+        image: {{  .Values.image.repository  }}:{{  .Values.image.tag  }}
+        imagePullPolicy: {{  .Values.image.imagePullPolicy  }}
+        ports:
+        - containerPort: 3000

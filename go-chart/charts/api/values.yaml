@@ -1,0 +1,6 @@
+replicaCount: 3
+
+image:
+  repository: 1vancn/goapi
+  tag: latest
+  pullPolicy: IfNotPresent

@@ -1,0 +1,6 @@
+replicaCount: 1
+
+image:
+  repository: 1vancn/golb
+  tag: latest
+  pullPolicy: IfNotPresent

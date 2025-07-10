@@ -1,0 +1,13 @@
+global:
+  go-gin-api:
+    name: go-gin-api
+  load-balancer:
+    name: load-balancer
+  frontend:
+    name: frontend
+  service-discovery:
+    name: service-discovery
+  postgres:
+    name: postgres      
+  go-gin-api-headless:
+    name: go-gin-api-headless

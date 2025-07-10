@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{  .Values.global.service-discovery.name  }}
+spec:
+  clusterIP: None
+  selector:
+    app: {{  .Values.global.service-discovery.name  }}
+  ports:
+  - port: 3000
+    targetPort: 3000

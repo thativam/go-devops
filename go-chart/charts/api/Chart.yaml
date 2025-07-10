@@ -1,0 +1,6 @@
+apiVersion: v2
+name: go-api
+description: A Helm chart for deploying a Go-based API application with multiple components
+version: 0.1.0
+appVersion: "1.0"
+type: application

@@ -1,0 +1,6 @@
+replicaCount: 1 
+
+image:
+  repository: 1vancn/goservicediscovery
+  tag: latest
+  pullPolicy: IfNotPresent
