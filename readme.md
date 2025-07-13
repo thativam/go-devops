@@ -1,6 +1,8 @@
 # Go Gin API
 
-API Simples em Go com o intuito de demonstrar o uso com containers
+Este projeto tem como objetivo aplicar os conceitos de orquestração de contêineres utilizando **Kubernetes** com **Minikube**, a partir de uma aplicação previamente conteinerizada com Docker Compose.
+
+A aplicação é uma **API simples em Go (Gin)** que permite o cadastro e listagem de usuários. Além disso, o sistema possui balanceamento de carga, descoberta de serviços e uma interface gráfica via navegador.
 
 ## Autores
 - Carolina Martins Emilio - 811508  
@@ -12,28 +14,46 @@ API Simples em Go com o intuito de demonstrar o uso com containers
 - O frontend so precisa mandar um nome para ser cadastrado
 - O loadbalancer suporta 2 algoritmos diferentes *roundrobin* e *random*, o default é o *roundrobin* então se tiver o servico na ordem A,B,C o front vai acessar o A, depois o B, depois o C e depois volta para o A.
 
-## Como rodar
+## Implantação com Kubernetes (Minikube)
 
-```bash
-    docker compose up --build
+A aplicação foi adaptada para execução em **Minikube** com os seguintes objetivos:
+
+- Utilizar **Deployments** e **Services** para os containers.
+- Tornar a aplicação acessível via **Ingress** em `http://k8s.local`.
+- Automatizar o deploy com **Helm Chart**.
+
+
+### Estrutura do Helm Chart
+
+```text
+charts/
+  └── gin-api/
+      ├── templates/
+      │   ├── deployment-*.yaml
+      │   ├── service-*.yaml
+      │   ├── ingress.yaml
+      │   └── ...
+      ├── values.yaml
+      └── Chart.yaml
 ```
 
-### Opcional
-Para aproveitar o LoadBalancer o interessante seria rodar com mais de uma instancia da api:
-```bash
-    docker compose up --build --scale go-gin-api=<numero_de_instancias>
+
+## Acesso via Ingress
+A aplicação é acessível em:
+```text
+http://k8s.local
 ```
+## Recursos Kubernetes Utilizados
 
+| Tipo       | Descrição                                                 |
+|------------|------------------------------------------------------------|
+| Deployment | Define os Pods e réplicas de cada componente              |
+| Service    | Exposição interna entre os serviços                       |
+| Ingress    | Disponibilização pública do frontend via domínio          |
+| ConfigMap  | Variáveis de ambiente                                     |
+| Secret     | Armazenamento de dados sensíveis (ex: senha do banco)     |
 
-
-## 🚀 Endpoints (LoadBalancer)
-
-- `GET /ping` – health check
-- `GET /users` – retorna usuarios
-- `POST /users -d {"name": "nomeUsuario"}` – cria um novo usuario
-- `OPTIONS /lb/strategy/:strategy` - strategy pode ser *random* ou *roundrobin*
-
-## 🫙 Containers
+## Containers
 
 - **frontend:**  
   Container responsável pela interface gráfica da aplicação.  
@@ -82,3 +102,5 @@ graph TD
 - 🛠️ `go-gin-api`: Backend principal  
 - ⚖️ `load-balancer`: Balanceador de carga  
 - 🖥️ `frontend`: Último a iniciar
+
+  
