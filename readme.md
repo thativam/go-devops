@@ -1,106 +1,130 @@
-# Go Gin API
+# Go Gin API – Implantação com Kubernetes e Helm
 
 Este projeto tem como objetivo aplicar os conceitos de orquestração de contêineres utilizando **Kubernetes** com **Minikube**, a partir de uma aplicação previamente conteinerizada com Docker Compose.
 
-A aplicação é uma **API simples em Go (Gin)** que permite o cadastro e listagem de usuários. Além disso, o sistema possui balanceamento de carga, descoberta de serviços e uma interface gráfica via navegador.
+A aplicação é uma **API simples em Go (Gin)** para cadastro e listagem de usuários, com suporte a balanceamento de carga, descoberta de serviços e interface gráfica via navegador.
 
 ## Autores
-- Carolina Martins Emilio - 811508  
-- Ivan Capeli Navas - 802286
 
-## Ideia
-- Aplicação tem o intuito de ser bem simples
-- A ideia é que um usuario teria um nome e um id
-- O frontend so precisa mandar um nome para ser cadastrado
-- O loadbalancer suporta 2 algoritmos diferentes *roundrobin* e *random*, o default é o *roundrobin* então se tiver o servico na ordem A,B,C o front vai acessar o A, depois o B, depois o C e depois volta para o A.
+- Carolina Martins Emilio – 811508  
+- Ivan Capeli Navas – 802286
 
-## Implantação com Kubernetes (Minikube)
+---
 
-A aplicação foi adaptada para execução em **Minikube** com os seguintes objetivos:
+## 💡 Ideia
 
-- Utilizar **Deployments** e **Services** para os containers.
-- Tornar a aplicação acessível via **Ingress** em `http://k8s.local`.
-- Automatizar o deploy com **Helm Chart**.
+- Aplicação minimalista, centrada no cadastro de usuários.
+- Cada usuário possui apenas um nome e um ID.
+- O frontend envia apenas o nome para cadastro.
+- O balanceador de carga opera com dois algoritmos:  
+  - `roundrobin` (padrão): acessa os serviços em ordem sequencial A → B → C → A...  
+  - `random`: escolhe uma instância aleatoriamente.
 
+---
 
-### Estrutura do Helm Chart
+## 🧱 Arquitetura Kubernetes
 
-```text
-charts/
-  └── gin-api/
-      ├── templates/
-      │   ├── deployment-*.yaml
-      │   ├── service-*.yaml
-      │   ├── ingress.yaml
-      │   └── ...
-      ├── values.yaml
-      └── Chart.yaml
-```
+A aplicação foi adaptada para rodar em **Minikube**, utilizando os seguintes recursos Kubernetes:
 
+| Tipo        | Descrição                                                      |
+|-------------|----------------------------------------------------------------|
+| Deployment  | Define os Pods e réplicas para frontend, load balancer, etc.   |
+| StatefulSet | Usado para o backend (`go-gin-api`) com descoberta estável.    |
+| Service     | Comunicação entre os componentes (alguns headless).            |
+| Ingress     | Expõe o frontend publicamente via `http://k8s.local`.          |
+| ConfigMap   | Armazena variáveis de ambiente não sensíveis.                  |
+| Secret      | Armazena informações sigilosas, como credenciais do banco.     |
 
-## Acesso via Ingress
-A aplicação é acessível em:
+---
+
+## 🌐 Acesso via Ingress
+
+O controlador de entrada (Ingress Controller) expõe as portas `80` e `443` e roteia todas as requisições ao frontend:
+
 ```text
 http://k8s.local
 ```
-## Recursos Kubernetes Utilizados
 
-| Tipo       | Descrição                                                 |
-|------------|------------------------------------------------------------|
-| Deployment | Define os Pods e réplicas de cada componente              |
-| Service    | Exposição interna entre os serviços                       |
-| Ingress    | Disponibilização pública do frontend via domínio          |
-| ConfigMap  | Variáveis de ambiente                                     |
-| Secret     | Armazenamento de dados sensíveis (ex: senha do banco)     |
+---
 
-## Containers
+## 🚀 Helm Chart
 
-- **frontend:**  
-  Container responsável pela interface gráfica da aplicação.  
-  Comunica-se com o *load balancer* para acessar os serviços do backend.  
-  Expõe a porta `5000`, permitindo que os usuários acessem o sistema via navegador.
+A implantação foi automatizada com **Helm**, utilizando uma estrutura multigráfico:
 
-- **go-gin-api:**  
-  Backend da aplicação desenvolvido com o framework Go Gin.  
-  Processa as requisições enviadas pelo frontend, acessa o banco de dados e interage com outros serviços.  
-  Depende do banco de dados estar saudável e do serviço de descoberta estar disponível.
-
-- **db:**  
-  Banco de dados PostgreSQL que armazena as informações persistentes da aplicação.  
-  Inicializa com um script SQL (`initdb.sql`) e é monitorado com um *healthcheck* para garantir que está pronto antes de os outros serviços dependerem dele.
-
-- **service-discovery:**  
-  API de descoberta de serviços.  
-  Sua função é registrar os serviços disponíveis e fornecer uma lista atualizada ao *load balancer*, permitindo que ele saiba quais instâncias estão ativas e onde enviar as requisições.
-
-- **load-balancer:**  
-  Funciona como um proxy reverso e balanceador de carga.  
-  Recebe as requisições do frontend e, com base nas informações do *service discovery*, as distribui entre as instâncias do backend disponíveis, garantindo escalabilidade e alta disponibilidade.
- 
-
-## 🔄 Ordem de Inicialização
-
-```mermaid
-graph TD
-    A[🛢️ db: PostgreSQL] --> B[🛠️ go-gin-api]
-    A -->|healthy| C[🔍 service-discovery]
-    C -->|started| B
-    C -->|started| D[⚖️ load-balancer]
-    B --> E[🖥️ frontend]
-    D --> E
-    
-    style A fill:#e1f5fe,stroke:#0288d1
-    style B fill:#e8f5e9,stroke:#388e3c
-    style C fill:#fff3e0,stroke:#fb8c00
-    style D fill:#f3e5f5,stroke:#8e24aa
-    style E fill:#ffebee,stroke:#e53935
+```
+go-chart/
+├── charts/
+│   ├── api/
+│   ├── front/
+│   └── lb/
+├── Chart.yaml
+└── values.yaml
 ```
 
-**Legenda:**  
-- 🛢️ `db`: Banco de dados (precisa estar *healthy*)  
-- 🔍 `service-discovery`: Pré-requisito para os demais serviços  
-- 🛠️ `go-gin-api`: Backend principal  
-- ⚖️ `load-balancer`: Balanceador de carga  
-- 🖥️ `frontend`: Último a iniciar
+Cada gráfico Helm é independente por componente, facilitando reutilização e versionamento.
 
-  
+### Estratégias Adotadas
+
+- Uso de `values.yaml` global compartilhado.
+- Templates Helm para Deployment, Services e variáveis de ambiente.
+- `StatefulSet` e `headless service` para descoberta estável no backend.
+- Balanceador com variável `SERVICE_REGISTRY_URL` dinâmica.
+- Mapeamento consistente de portas entre serviços.
+
+---
+
+## 📦 Containers e Serviços
+
+### 🖥️ frontend
+- Interface gráfica feita em Python (NiceGUI).
+- Porta exposta: `5000` (via Service mapeada para `80`).
+- Variáveis:  
+  `API_URL=http://load-balancer:8080`
+
+### ⚙️ go-gin-api (backend)
+- Framework: Go (Gin).
+- Executado como `StatefulSet` com 3 réplicas.
+- Usa serviço `headless` para descoberta.
+- Acesso ao banco via env:
+  ```yaml
+  DB_HOST: postgres
+  DB_PORT: 5432
+  DB_USER: postgres
+  DB_PASSWORD: pass
+  DB_NAME: mydb
+  ```
+
+### 🔍 service-discovery
+- Serviço de descoberta onde as instâncias da API se registram.
+- Comunicação via `POST /register` e `GET /services`.
+
+### ⚖️ load-balancer
+- Recebe requisições do frontend e encaminha para o backend.
+- Balanceamento `roundrobin` ou `random`.
+- Usa:
+  ```yaml
+  SERVICE_REGISTRY_URL=http://service-discovery:3000/services
+  ```
+
+### 🛢️ db (PostgreSQL)
+- Armazena dados persistentes.
+- Inicialização com `initdb.sql`.
+- Monitorado com `healthcheck`.
+
+---
+
+## 🔁 Ordem de Inicialização (Dependências)
+
+```text
+1. db              🛢️
+2. service-discovery 🔍
+3. go-gin-api       🛠️
+4. load-balancer    ⚖️
+5. frontend         🖥️
+```
+
+---
+
+## 📌 Conclusão
+
+O projeto Go Gin API demonstra de forma prática a implantação de microsserviços com Kubernetes, utilizando boas práticas como descoberta de serviços, balanceamento de carga, segregação de serviços em gráficos Helm, e uso de Ingress para exposição segura. A abordagem modular e automatizada facilita escalabilidade, manutenção e portabilidade para ambientes reais de produção.
