@@ -33,7 +33,7 @@ A aplicação foi adaptada para rodar em **Minikube**, utilizando os seguintes r
 | Service     | Comunicação entre os componentes (alguns headless).            |
 | Ingress     | Expõe o frontend publicamente via `http://k8s.local`.          |
 | ConfigMap   | Armazena variáveis de ambiente não sensíveis.                  |
-| Secret      | Armazena informações sigilosas, como credenciais do banco.     |
+
 
 ---
 
@@ -127,4 +127,4 @@ Cada gráfico Helm é independente por componente, facilitando reutilização e 
 
 ## 📌 Conclusão
 
-O projeto Go Gin API demonstra de forma prática a implantação de microsserviços com Kubernetes, utilizando boas práticas como descoberta de serviços, balanceamento de carga, segregação de serviços em gráficos Helm, e uso de Ingress para exposição segura. A abordagem modular e automatizada facilita escalabilidade, manutenção e portabilidade para ambientes reais de produção.
+O projeto Go Gin API demonstra de forma prática a implantação de microsserviços com Kubernetes, utilizando boas práticas como descoberta de serviços, balanceamento de carga e uso de Ingress para exposição segura. A abordagem modular e automatizada facilita escalabilidade, manutenção e portabilidade para ambientes reais de produção.
