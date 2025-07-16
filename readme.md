@@ -113,15 +113,6 @@ Cada gráfico Helm é independente por componente, facilitando reutilização e 
 
 ---
 
-## 🔁 Ordem de Inicialização (Dependências)
-
-```text
-1. db              🛢️
-2. service-discovery 🔍
-3. go-gin-api       🛠️
-4. load-balancer    ⚖️
-5. frontend         🖥️
-```
 
 ---
 
