@@ -114,8 +114,6 @@ Cada gráfico Helm é independente por componente, facilitando reutilização e 
 ---
 
 
----
-
 ## 📌 Conclusão
 
 O projeto Go Gin API demonstra de forma prática a implantação de microsserviços com Kubernetes, utilizando boas práticas como descoberta de serviços, balanceamento de carga e uso de Ingress para exposição segura. A abordagem modular e automatizada facilita escalabilidade, manutenção e portabilidade para ambientes reais de produção.
